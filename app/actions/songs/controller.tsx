@@ -2,6 +2,7 @@ import { redirect } from 'remix/response/redirect'
 import { createController } from 'remix/router'
 
 import type { SongMeta } from '../../data/chordpro.ts'
+import { convertSong } from '../../data/convert.ts'
 import { addSongToSetlist, listSetlists, setlistsContaining } from '../../data/setlists.ts'
 import { songId, songParams } from '../../data/song-id.ts'
 import { createSong, deleteSong, getSong, updateSong } from '../../data/songs.ts'
@@ -11,6 +12,7 @@ import { readSteps } from '../../ui/song-view.tsx'
 import { notFound, readText } from '../form.ts'
 import { DeleteSongPage } from './delete-page.tsx'
 import { SongFormPage, type SongFormValues } from './form-page.tsx'
+import { PastePage } from './paste-page.tsx'
 import { SongPage } from './song-page.tsx'
 
 function readSongForm(formData: FormData): SongFormValues {
@@ -49,6 +51,42 @@ export default createController(routes.songs, {
   actions: {
     new(context) {
       return context.render(<SongFormPage mode="create" />)
+    },
+
+    paste(context) {
+      return context.render(<PastePage />)
+    },
+
+    async convert(context) {
+      let file = context.formData.get('file')
+      let text =
+        file instanceof File && file.size > 0
+          ? await file.text()
+          : ((context.formData.get('text') as string | null) ?? '')
+      if (!text.trim()) {
+        return context.render(<PastePage error="Paste some text or choose a file." />, {
+          status: 400,
+        })
+      }
+
+      let { format, meta, body } = convertSong(text)
+      let missing = [!meta.title && 'title', !meta.artist && 'artist'].filter(Boolean)
+      let notice =
+        (format === 'chordpro'
+          ? 'This was already ChordPro.'
+          : 'Converted from chords-above-lyrics to ChordPro.') +
+        ' Check the result, then save.' +
+        (missing.length > 0 ? ` Couldn't find the ${missing.join(' or ')}.` : '')
+
+      let values: SongFormValues = {
+        title: meta.title,
+        artist: meta.artist,
+        album: meta.album ?? '',
+        key: meta.key ?? '',
+        capo: meta.capo ?? '',
+        body,
+      }
+      return context.render(<SongFormPage mode="create" values={values} notice={notice} />)
     },
 
     async create(context) {

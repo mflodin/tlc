@@ -6,6 +6,8 @@ export const routes = route({
   songs: {
     new: get('/songs/new'),
     create: post('/songs/new'),
+    paste: get('/songs/paste'),
+    convert: post('/songs/paste'),
     show: get('/songs/:artist/:song'),
     edit: get('/songs/:artist/:song/edit'),
     update: post('/songs/:artist/:song/edit'),

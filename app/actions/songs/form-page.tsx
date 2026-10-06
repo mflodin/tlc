@@ -20,6 +20,8 @@ export interface SongFormPageProps {
   slug?: string
   values?: SongFormValues
   errors?: string[]
+  /** Shown above the form, e.g. after converting pasted text. */
+  notice?: string
 }
 
 const EMPTY: SongFormValues = { title: '', artist: '', album: '', key: '', capo: '', body: '' }
@@ -39,7 +41,7 @@ B|---1---1---|
 
 export function SongFormPage(handle: Handle<SongFormPageProps>) {
   return () => {
-    let { mode, slug, values = EMPTY, errors = [] } = handle.props
+    let { mode, slug, values = EMPTY, errors = [], notice } = handle.props
     let editSlug = mode === 'edit' ? slug : undefined
     let isEdit = editSlug !== undefined
     let action = editSlug ? routes.songs.update.href(songParams(editSlug)) : routes.songs.create.href()
@@ -49,6 +51,17 @@ export function SongFormPage(handle: Handle<SongFormPageProps>) {
     return (
       <Layout title={heading}>
         <h1>{heading}</h1>
+        {!isEdit && !notice && (
+          <p mix={mutedStyle}>
+            Have chords and lyrics in another format?{' '}
+            <a href={routes.songs.paste.href()}>Paste or upload them</a> and they'll be converted.
+          </p>
+        )}
+        {notice && (
+          <p role="status" mix={noticeStyle}>
+            {notice}
+          </p>
+        )}
         {errors.length > 0 && (
           <ul role="alert" mix={errorStyle}>
             {errors.map((error) => (
@@ -138,6 +151,14 @@ const bodyInputStyle = css({
   fontSize: '0.9rem',
   lineHeight: 1.45,
   resize: 'vertical',
+})
+
+const noticeStyle = css({
+  padding: '0.75rem 1rem',
+  border: '1px solid var(--border)',
+  borderLeft: '4px solid var(--accent)',
+  borderRadius: '8px',
+  background: 'var(--surface-1)',
 })
 
 const errorStyle = css({

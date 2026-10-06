@@ -163,6 +163,34 @@ describe('songbook', () => {
     assert.match(search, /Långsam vals/)
   })
 
+  it('converts pasted chords-above-lyrics into a pre-filled song form', async () => {
+    assert.equal((await get(routes.songs.paste.href())).status, 200)
+
+    let response = await post(routes.songs.convert.href(), {
+      text: 'Tester - Pasted Song\n\n[Verse]\nG       D\nWalking down the lane',
+    })
+    assert.equal(response.status, 200)
+    let html = await response.text()
+    assert.match(html, /Converted from chords-above-lyrics/)
+    assert.match(html, /value="Pasted Song"/)
+    assert.match(html, /\[G\]Walking \[D\]down the lane/)
+
+    let empty = await post(routes.songs.convert.href(), { text: '  ' })
+    assert.equal(empty.status, 400)
+  })
+
+  it('accepts an uploaded file for conversion', async () => {
+    let body = new FormData()
+    body.set('text', '')
+    body.set('file', new File(['[Intro]\nAm  E'], 'song.txt', { type: 'text/plain' }))
+    let response = await router.fetch(
+      new Request(new URL(routes.songs.convert.href(), origin), { method: 'POST', body }),
+    )
+    let html = await response.text()
+    assert.match(html, /\[Am\]  \[E\]/)
+    assert.match(html, /find the title or artist/)
+  })
+
   it('returns 404 for unknown or unsafe ids', async () => {
     assert.equal((await get('/songs/tester/nope')).status, 404)
     assert.equal((await get('/songs/..%2F..%2Fetc/passwd')).status, 404)
