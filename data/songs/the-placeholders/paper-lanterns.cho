@@ -1,0 +1,29 @@
+{title: Paper Lanterns}
+{artist: The Placeholders}
+{album: Example Songs}
+{key: G}
+
+# An original example song so the app has something to show.
+
+{start_of_verse: Verse 1}
+[G]Paper lanterns [D]on the line
+[Em]Swaying slow in the [C]evening wind
+[G]Someone hums an [D]old refrain
+[C]Down the street and [D]back again
+{end_of_verse}
+
+{start_of_chorus}
+[C]Light them up, [G]light them up
+[Em]Hold the night a [D]little longer
+[C]Light them up, [G]light them up
+[D]Every flame a [G]little stronger
+{end_of_chorus}
+
+{start_of_verse: Verse 2}
+[G]Chalk lines on the [D]harbour wall
+[Em]Names we wrote when [C]we were small
+[G]Rain will come and [D]wash them clear
+[C]Still we know that [D]we were here
+{end_of_verse}
+
+{comment: Repeat chorus}

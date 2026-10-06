@@ -1,0 +1,10 @@
+[
+  {
+    "id": "example-gig",
+    "name": "Example gig",
+    "songIds": [
+      "the-placeholders/paper-lanterns",
+      "fjallrav-och-vanner/langsam-vals"
+    ]
+  }
+]

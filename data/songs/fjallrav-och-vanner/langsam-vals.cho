@@ -1,0 +1,30 @@
+{title: Långsam vals}
+{artist: Fjällräv och vänner}
+{key: Am}
+{capo: 2}
+
+# Original example song with Swedish characters and a tab intro.
+
+{comment: Intro}
+{start_of_tab}
+e|-------0-------|-------0-------|
+B|-----1---1-----|-----1---1-----|
+G|---2-------2---|---2-------2---|
+D|---------------|---------------|
+A|-0-------------|---------------|
+E|---------------|-3-------------|
+{end_of_tab}
+
+{start_of_verse}
+[Am]Sakta över [Dm]ängen
+[G]dansar dimman [C]vit
+[F]Någon spelar [Dm]fiol
+[E]långt bort ifrån [Am]hit
+{end_of_verse}
+
+{start_of_chorus}
+[F]Ett, två, [C]tre
+[G]snurra, [Am]le
+[F]kvällen är [E]vår
+[Am]tills morgonen [E7]går [Am]
+{end_of_chorus}
