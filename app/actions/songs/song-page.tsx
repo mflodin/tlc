@@ -4,6 +4,7 @@ import { css } from 'remix/component'
 import type { Song } from '../../data/chordpro.ts'
 import type { Setlist } from '../../data/setlists.ts'
 import { songParams } from '../../data/song-id.ts'
+import { canEdit } from '../../middleware/auth.ts'
 import { routes } from '../../routes.ts'
 import { Layout } from '../../ui/layout.tsx'
 import { SongBody, SongHeader, TransposeControls, withSteps } from '../../ui/song-view.tsx'
@@ -21,6 +22,7 @@ export function SongPage(handle: Handle<SongPageProps>) {
   return () => {
     let { slug, song, steps, memberOf, otherSetlists } = handle.props
     let showHref = routes.songs.show.href(songParams(slug))
+    let editable = canEdit()
 
     return (
       <Layout title={song.title}>
@@ -29,12 +31,16 @@ export function SongPage(handle: Handle<SongPageProps>) {
         <div mix={[rowStyle, toolbarStyle]}>
           <TransposeControls steps={steps} hrefFor={(n) => withSteps(showHref, n)} />
           <span mix={css({ flex: 1 })} />
-          <a href={routes.songs.edit.href(songParams(slug))} mix={buttonStyle}>
-            Edit
-          </a>
-          <a href={routes.songs.confirmDelete.href(songParams(slug))} mix={buttonStyle}>
-            Delete
-          </a>
+          {editable && (
+            <>
+              <a href={routes.songs.edit.href(songParams(slug))} mix={buttonStyle}>
+                Edit
+              </a>
+              <a href={routes.songs.confirmDelete.href(songParams(slug))} mix={buttonStyle}>
+                Delete
+              </a>
+            </>
+          )}
         </div>
 
         <SongBody song={song} />
@@ -52,7 +58,7 @@ export function SongPage(handle: Handle<SongPageProps>) {
           ) : (
             <p mix={mutedStyle}>Not in any setlist yet.</p>
           )}
-          {otherSetlists.length > 0 ? (
+          {!editable ? null : otherSetlists.length > 0 ? (
             <form method="post" action={routes.songs.addToSetlist.href(songParams(slug))} mix={rowStyle}>
               <select name="setlist" aria-label="Setlist" mix={inputStyle}>
                 {otherSetlists.map((setlist) => (

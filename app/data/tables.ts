@@ -29,5 +29,18 @@ export const setlists = table({
   },
 })
 
+export const users = table({
+  name: 'users',
+  columns: {
+    id: c.integer(),
+    username: c.text(),
+    password_hash: c.text(),
+    role: c.enum(['viewer', 'editor']),
+    session_version: c.integer(),
+    created_at: c.text(),
+  },
+})
+
 export type SongRow = TableRow<typeof songs>
+export type UserRow = TableRow<typeof users>
 export type SetlistRow = TableRow<typeof setlists>

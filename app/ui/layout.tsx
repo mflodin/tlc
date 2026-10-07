@@ -2,6 +2,7 @@ import type { Handle, RemixNode } from 'remix/component'
 import { css } from 'remix/component'
 
 import { Document } from '../actions/document.tsx'
+import { currentUser } from '../middleware/auth.ts'
 import { routes } from '../routes.ts'
 import { inputStyle } from './styles.ts'
 
@@ -16,6 +17,7 @@ export interface LayoutProps {
 export function Layout(handle: Handle<LayoutProps>) {
   return () => {
     let { children, title, query = '', bare = false } = handle.props
+    let user = currentUser()
 
     return (
       <Document title={title ? `${title} · Tlc` : 'Tlc'}>
@@ -28,7 +30,7 @@ export function Layout(handle: Handle<LayoutProps>) {
               <nav mix={navStyle}>
                 <a href={routes.home.href()}>Songs</a>
                 <a href={routes.setlists.index.href()}>Setlists</a>
-                <a href={routes.songs.new.href()}>New song</a>
+                {user?.role === 'editor' && <a href={routes.songs.new.href()}>New song</a>}
               </nav>
               <form method="get" action={routes.home.href()} role="search" mix={searchStyle}>
                 <input
@@ -40,6 +42,18 @@ export function Layout(handle: Handle<LayoutProps>) {
                   mix={inputStyle}
                 />
               </form>
+              {user && (
+                <div mix={userStyle}>
+                  <a href={routes.account.href()} title="Account">
+                    {user.username}
+                  </a>
+                  <form method="post" action={routes.logout.href()}>
+                    <button type="submit" mix={linkButtonStyle}>
+                      Log out
+                    </button>
+                  </form>
+                </div>
+              )}
             </header>
           )}
           <main mix={bare ? bareMainStyle : mainStyle}>{children}</main>
@@ -99,6 +113,25 @@ const searchStyle = css({
   flex: '1 1 14rem',
   maxWidth: '24rem',
   '& input': { flex: 1 },
+})
+
+const userStyle = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.75rem',
+  fontSize: '0.9rem',
+  '& a': { color: 'var(--muted)', textDecoration: 'none' },
+  '& a:hover': { color: 'var(--accent)' },
+})
+
+const linkButtonStyle = css({
+  padding: 0,
+  border: 0,
+  background: 'none',
+  color: 'var(--muted)',
+  font: 'inherit',
+  cursor: 'pointer',
+  '&:hover': { color: 'var(--accent)' },
 })
 
 const mainStyle = css({

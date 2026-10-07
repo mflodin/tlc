@@ -3,6 +3,7 @@ import { css } from 'remix/component'
 
 import type { SearchField, SearchResult } from '../data/search.ts'
 import { songParams } from '../data/song-id.ts'
+import { canEdit } from '../middleware/auth.ts'
 import type { StoredSong } from '../data/songs.ts'
 import { routes } from '../routes.ts'
 import { Layout } from '../ui/layout.tsx'
@@ -95,7 +96,13 @@ function SongIndex(handle: Handle<{ songs: StoredSong[] }>) {
     if (songs.length === 0) {
       return (
         <p mix={mutedStyle}>
-          No songs yet. <a href={routes.songs.new.href()}>Add the first one</a>.
+          No songs yet.
+          {canEdit() && (
+            <>
+              {' '}
+              <a href={routes.songs.new.href()}>Add the first one</a>.
+            </>
+          )}
         </p>
       )
     }

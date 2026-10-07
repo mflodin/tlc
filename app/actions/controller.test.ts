@@ -2,21 +2,21 @@ import * as assert from 'remix/assert'
 import type { Database } from 'remix/data-table'
 import { afterAll, beforeAll, describe, it } from 'remix/test'
 
-import { createTestDatabase } from '../../test/database.ts'
+import { createTestApp, type TestClient } from '../../test/client.ts'
 import { listSetlists } from '../data/setlists.ts'
 import { getSong } from '../data/songs.ts'
 import { songParams } from '../data/song-id.ts'
-import { createAppRouter } from '../router.ts'
 import { routes } from '../routes.ts'
 
-// The tests below run in order against one in-memory database.
-const origin = 'http://localhost'
+// The tests below run in order against one in-memory database, logged in as an editor.
+// Login and access rules are tested in auth.test.ts.
 let db: Database
-let router: ReturnType<typeof createAppRouter>
+let editor: TestClient
 
 beforeAll(async () => {
-  db = await createTestDatabase()
-  router = createAppRouter({ db })
+  let app = await createTestApp()
+  db = app.db
+  editor = await app.loggedIn('editor', 'editor')
 })
 
 afterAll(async () => {
@@ -24,13 +24,11 @@ afterAll(async () => {
 })
 
 function get(href: string) {
-  return router.fetch(new Request(new URL(href, origin)))
+  return editor.get(href)
 }
 
-function post(href: string, fields: Record<string, string>) {
-  let body = new FormData()
-  for (let [name, value] of Object.entries(fields)) body.set(name, value)
-  return router.fetch(new Request(new URL(href, origin), { method: 'POST', body }))
+function post(href: string, fields: Record<string, string | File>) {
+  return editor.post(href, fields)
 }
 
 function readSetlists() {
@@ -180,12 +178,10 @@ describe('songbook', () => {
   })
 
   it('accepts an uploaded file for conversion', async () => {
-    let body = new FormData()
-    body.set('text', '')
-    body.set('file', new File(['[Intro]\nAm  E'], 'song.txt', { type: 'text/plain' }))
-    let response = await router.fetch(
-      new Request(new URL(routes.songs.convert.href(), origin), { method: 'POST', body }),
-    )
+    let response = await post(routes.songs.convert.href(), {
+      text: '',
+      file: new File(['[Intro]\nAm  E'], 'song.txt', { type: 'text/plain' }),
+    })
     let html = await response.text()
     assert.match(html, /\[Am\]  \[E\]/)
     assert.match(html, /find the title or artist/)

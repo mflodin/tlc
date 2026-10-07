@@ -2,6 +2,7 @@ import type { Handle } from 'remix/component'
 import { css } from 'remix/component'
 
 import type { Setlist } from '../../data/setlists.ts'
+import { canEdit } from '../../middleware/auth.ts'
 import { routes } from '../../routes.ts'
 import { Layout } from '../../ui/layout.tsx'
 import {
@@ -21,6 +22,7 @@ export function SetlistsPage(handle: Handle<{ setlists: Setlist[]; error?: strin
       <Layout title="Setlists">
         <h1>Setlists</h1>
 
+        {canEdit() && (
         <form method="post" action={routes.setlists.create.href()} mix={[rowStyle, formStyle]}>
           <input
             name="name"
@@ -33,6 +35,7 @@ export function SetlistsPage(handle: Handle<{ setlists: Setlist[]; error?: strin
             Create setlist
           </button>
         </form>
+        )}
         {error && (
           <p role="alert" mix={css({ color: 'var(--danger)' })}>
             {error}

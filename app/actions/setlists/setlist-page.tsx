@@ -3,6 +3,7 @@ import { css } from 'remix/component'
 
 import type { Setlist } from '../../data/setlists.ts'
 import { songParams } from '../../data/song-id.ts'
+import { canEdit } from '../../middleware/auth.ts'
 import { routes } from '../../routes.ts'
 import { Layout } from '../../ui/layout.tsx'
 import {
@@ -30,6 +31,7 @@ export function SetlistPage(handle: Handle<SetlistPageProps>) {
   return () => {
     let { setlist, entries, available } = handle.props
     let updateHref = routes.setlists.update.href({ id: setlist.id })
+    let editable = canEdit()
 
     return (
       <Layout title={setlist.name}>
@@ -47,7 +49,9 @@ export function SetlistPage(handle: Handle<SetlistPageProps>) {
         </div>
 
         {entries.length === 0 ? (
-          <p mix={mutedStyle}>This setlist is empty. Add songs below or from a song's page.</p>
+          <p mix={mutedStyle}>
+            This setlist is empty.{editable && " Add songs below or from a song's page."}
+          </p>
         ) : (
           <ol mix={listStyle}>
             {entries.map((entry, index) => (
@@ -57,6 +61,7 @@ export function SetlistPage(handle: Handle<SetlistPageProps>) {
                   <strong>{entry.title}</strong>
                   {entry.artist && <span mix={mutedStyle}>{entry.artist}</span>}
                 </a>
+                {editable && (
                 <form method="post" action={updateHref} mix={rowStyle}>
                   <input type="hidden" name="index" value={String(index)} />
                   <button
@@ -89,12 +94,13 @@ export function SetlistPage(handle: Handle<SetlistPageProps>) {
                     ✕
                   </button>
                 </form>
+                )}
               </li>
             ))}
           </ol>
         )}
 
-        {available.length > 0 && (
+        {editable && available.length > 0 && (
           <form method="post" action={updateHref} mix={[rowStyle, sectionStyle]}>
             <input type="hidden" name="intent" value="add" />
             <select name="song" aria-label="Song to add" mix={[inputStyle, css({ flex: '1 1 16rem' })]}>
@@ -111,6 +117,7 @@ export function SetlistPage(handle: Handle<SetlistPageProps>) {
           </form>
         )}
 
+        {editable && (
         <details mix={sectionStyle}>
           <summary>Rename or delete setlist</summary>
           <div mix={settingsStyle}>
@@ -135,6 +142,7 @@ export function SetlistPage(handle: Handle<SetlistPageProps>) {
             <p mix={mutedStyle}>Deleting a setlist keeps its songs.</p>
           </div>
         </details>
+        )}
       </Layout>
     )
   }
