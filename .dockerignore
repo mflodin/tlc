@@ -1,0 +1,10 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+.DS_Store
+.agents
+node_modules
+tmp
+db/*.sqlite
+db/*.sqlite-*
