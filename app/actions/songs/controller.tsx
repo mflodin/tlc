@@ -8,7 +8,7 @@ import { songId, songParams } from '../../data/song-id.ts'
 import { createSong, deleteSong, getSong, updateSong } from '../../data/songs.ts'
 import { transposeSong } from '../../data/transpose.ts'
 import { routes } from '../../routes.ts'
-import { readSteps } from '../../ui/song-view.tsx'
+import { readMenuOpen, readSteps } from '../../ui/song-view.tsx'
 import { notFound, readText } from '../form.ts'
 import { DeleteSongPage } from './delete-page.tsx'
 import { SongFormPage, type SongFormValues } from './form-page.tsx'
@@ -116,6 +116,7 @@ export default createController(routes.songs, {
           steps={steps}
           memberOf={memberOf}
           otherSetlists={allSetlists.filter((s) => !s.songIds.includes(stored.slug))}
+          menuOpen={readMenuOpen(context.url)}
         />,
       )
     },

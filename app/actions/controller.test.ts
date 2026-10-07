@@ -187,6 +187,21 @@ describe('songbook', () => {
     assert.match(html, /find the title or artist/)
   })
 
+  it('puts transpose, edit and delete in a menu that stays open while transposing', async () => {
+    let showHref = routes.songs.show.href({ artist: 'tester', song: 'test-tune' })
+
+    let closed = await (await get(showHref)).text()
+    assert.match(closed, /<details[^>]*>\s*<summary[^>]*aria-label="Song options"/)
+    assert.doesNotMatch(closed, /<details[^>]*\bopen\b/)
+    assert.match(closed, /href="\/songs\/tester\/test-tune\?t=1&amp;menu=1"/)
+    assert.match(closed, /href="\/songs\/tester\/test-tune\/edit"/)
+
+    let open = await (await get(`${showHref}?t=2&menu=1`)).text()
+    assert.match(open, /<details[^>]*\bopen\b/)
+    // The button shows the transposition while the menu is closed.
+    assert.match(open, /<summary[^>]*>\s*<span[^>]*>\+2<\/span>/)
+  })
+
   it('returns 404 for unknown or unsafe ids', async () => {
     assert.equal((await get('/songs/tester/nope')).status, 404)
     assert.equal((await get('/songs/..%2F..%2Fetc/passwd')).status, 404)

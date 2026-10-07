@@ -6,7 +6,8 @@ import type { Setlist } from '../../data/setlists.ts'
 import { songParams } from '../../data/song-id.ts'
 import { routes } from '../../routes.ts'
 import { Layout } from '../../ui/layout.tsx'
-import { SongBody, SongHeader, TransposeControls, withSteps } from '../../ui/song-view.tsx'
+import { menuItemStyle, SongMenu } from '../../ui/song-menu.tsx'
+import { SongBody, SongHeader, withSteps } from '../../ui/song-view.tsx'
 import { buttonStyle, mutedStyle, rowStyle } from '../../ui/styles.ts'
 import { PlayKeys } from './public/play-keys.tsx'
 
@@ -16,11 +17,12 @@ export interface PlayPageProps {
   slug: string
   song: Song
   steps: number
+  menuOpen?: boolean
 }
 
 export function PlayPage(handle: Handle<PlayPageProps>) {
   return () => {
-    let { setlist, pos, slug, song, steps } = handle.props
+    let { setlist, pos, slug, song, steps, menuOpen = false } = handle.props
     let total = setlist.songIds.length
     let playHref = (n: number) => routes.setlists.play.href({ id: setlist.id, pos: String(n) })
     let prevHref = pos > 1 ? playHref(pos - 1) : undefined
@@ -36,10 +38,11 @@ export function PlayPage(handle: Handle<PlayPageProps>) {
             {pos} / {total}
           </span>
           <span mix={css({ flex: 1 })} />
-          <TransposeControls steps={steps} hrefFor={(n) => withSteps(playHref(pos), n)} />
-          <a href={routes.songs.show.href(songParams(slug))} mix={buttonStyle}>
-            Song page
-          </a>
+          <SongMenu steps={steps} hrefFor={(n) => withSteps(playHref(pos), n)} open={menuOpen}>
+            <a href={routes.songs.show.href(songParams(slug))} mix={menuItemStyle}>
+              Song page
+            </a>
+          </SongMenu>
         </nav>
 
         <SongHeader song={song} />

@@ -14,7 +14,7 @@ import {
 import { getSong, listSongs } from '../../data/songs.ts'
 import { transposeSong } from '../../data/transpose.ts'
 import { routes } from '../../routes.ts'
-import { readSteps } from '../../ui/song-view.tsx'
+import { readMenuOpen, readSteps } from '../../ui/song-view.tsx'
 import { notFound, readInt, readText } from '../form.ts'
 import { SetlistsPage } from './index-page.tsx'
 import { PlayPage } from './play-page.tsx'
@@ -120,6 +120,7 @@ export default createController(routes.setlists, {
           slug={slug}
           song={transposeSong(stored.song, steps)}
           steps={steps}
+          menuOpen={readMenuOpen(context.url)}
         />,
       )
     },

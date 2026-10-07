@@ -7,7 +7,8 @@ import { songParams } from '../../data/song-id.ts'
 import { canEdit } from '../../middleware/auth.ts'
 import { routes } from '../../routes.ts'
 import { Layout } from '../../ui/layout.tsx'
-import { SongBody, SongHeader, TransposeControls, withSteps } from '../../ui/song-view.tsx'
+import { dangerMenuItemStyle, menuItemStyle, SongMenu } from '../../ui/song-menu.tsx'
+import { SongBody, SongHeader, withSteps } from '../../ui/song-view.tsx'
 import { buttonStyle, inputStyle, mutedStyle, rowStyle } from '../../ui/styles.ts'
 
 export interface SongPageProps {
@@ -16,31 +17,34 @@ export interface SongPageProps {
   steps: number
   memberOf: Setlist[]
   otherSetlists: Setlist[]
+  menuOpen?: boolean
 }
 
 export function SongPage(handle: Handle<SongPageProps>) {
   return () => {
-    let { slug, song, steps, memberOf, otherSetlists } = handle.props
+    let { slug, song, steps, memberOf, otherSetlists, menuOpen = false } = handle.props
     let showHref = routes.songs.show.href(songParams(slug))
     let editable = canEdit()
 
     return (
       <Layout title={song.title}>
-        <SongHeader song={song} />
-
-        <div mix={[rowStyle, toolbarStyle]}>
-          <TransposeControls steps={steps} hrefFor={(n) => withSteps(showHref, n)} />
-          <span mix={css({ flex: 1 })} />
-          {editable && (
-            <>
-              <a href={routes.songs.edit.href(songParams(slug))} mix={buttonStyle}>
-                Edit
-              </a>
-              <a href={routes.songs.confirmDelete.href(songParams(slug))} mix={buttonStyle}>
-                Delete
-              </a>
-            </>
-          )}
+        <div mix={headerRowStyle}>
+          <SongHeader song={song} />
+          <SongMenu steps={steps} hrefFor={(n) => withSteps(showHref, n)} open={menuOpen}>
+            {editable && (
+              <>
+                <a href={routes.songs.edit.href(songParams(slug))} mix={menuItemStyle}>
+                  Edit
+                </a>
+                <a
+                  href={routes.songs.confirmDelete.href(songParams(slug))}
+                  mix={[menuItemStyle, dangerMenuItemStyle]}
+                >
+                  Delete
+                </a>
+              </>
+            )}
+          </SongMenu>
         </div>
 
         <SongBody song={song} />
@@ -82,10 +86,14 @@ export function SongPage(handle: Handle<SongPageProps>) {
   }
 }
 
-const toolbarStyle = css({
-  margin: '0 0 1.25rem',
-  paddingBottom: '1rem',
+const headerRowStyle = css({
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  gap: '1rem',
+  marginBottom: '1.25rem',
   borderBottom: '1px solid var(--border)',
+  '& > header': { flex: '1 1 auto', minWidth: 0 },
 })
 
 const memberListStyle = css({

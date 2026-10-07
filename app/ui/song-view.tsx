@@ -68,7 +68,7 @@ export function TransposeControls(handle: Handle<{ steps: number; hrefFor: (step
   return () => {
     let { steps, hrefFor } = handle.props
     let normalized = normalizeSteps(steps)
-    let label = normalized === 0 ? '0' : normalized <= 6 ? `+${normalized}` : `−${12 - normalized}`
+    let label = transposeLabel(steps)
 
     return (
       <div mix={rowStyle} aria-label="Transpose">
@@ -90,6 +90,12 @@ export function TransposeControls(handle: Handle<{ steps: number; hrefFor: (step
   }
 }
 
+/** "+2", "−3" or "0" for a number of semitones. */
+export function transposeLabel(steps: number): string {
+  let normalized = normalizeSteps(steps)
+  return normalized === 0 ? '0' : normalized <= 6 ? `+${normalized}` : `−${12 - normalized}`
+}
+
 /** Reads `?t=` from a URL, kept within one octave. */
 export function readSteps(url: URL): number {
   let steps = Number.parseInt(url.searchParams.get('t') ?? '0', 10)
@@ -102,6 +108,18 @@ export function withSteps(href: string, steps: number): string {
   let normalized = normalizeSteps(steps)
   if (normalized === 0) return href
   return `${href}?t=${normalized > 6 ? normalized - 12 : normalized}`
+}
+
+/**
+ * Adds `menu=1` so the song menu renders open again after the page reloads, letting someone
+ * click "+" several times without reopening it.
+ */
+export function withMenuOpen(href: string): string {
+  return `${href}${href.includes('?') ? '&' : '?'}menu=1`
+}
+
+export function readMenuOpen(url: URL): boolean {
+  return url.searchParams.has('menu')
 }
 
 const songHeaderStyle = css({
