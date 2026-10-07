@@ -1,9 +1,10 @@
 # Runs the app with its SQLite database in /data. On Dokku, mount a persistent volume there:
 #
-#   dokku storage:ensure-directory tlc
-#   sudo chown -R 1000:1000 /var/lib/dokku/data/storage/tlc   # the image's "node" user
-#   dokku storage:mount tlc /var/lib/dokku/data/storage/tlc:/data
+#   dokku storage:create tlc --chown heroku   # 1000:1000, the image's "node" user
+#   dokku storage:mount tlc tlc --container-dir /data
 #   dokku config:set tlc SESSION_SECRET=$(openssl rand -hex 32)
+#
+# Deploy with: git push dokku main
 #
 # Create the first user with: dokku run tlc npm run user -- add <name> --role editor
 FROM node:24-alpine
