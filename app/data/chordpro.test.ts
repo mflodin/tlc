@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { lyricsText, parseLine, parseSong, serializeSong, songBody } from './chordpro.ts'
+import { isChordOnly, lyricsText, parseLine, parseSong, serializeSong, songBody } from './chordpro.ts'
 
 describe('parseLine', () => {
   it('splits a line into chord/lyric segments', () => {
@@ -64,6 +64,25 @@ describe('parseSong', () => {
 
   it('extracts lyrics without chords or tabs', () => {
     assert.equal(lyricsText(parseSong(text)), 'Hello world\nChorus line')
+  })
+})
+
+describe('isChordOnly', () => {
+  it('is true for chords with bar lines, parentheses and repeat marks', () => {
+    assert.ok(isChordOnly(parseLine('| [E]     |([E])    | [F#m]   |([F#m])  | x4')))
+    assert.ok(isChordOnly(parseLine('[Am] [G] [F] 2x')))
+    assert.ok(isChordOnly(parseLine('[Am][G]')))
+  })
+
+  it('is false for lines with words or without chords', () => {
+    assert.ok(!isChordOnly(parseLine('[G]Walking down the [D]lane')))
+    assert.ok(!isChordOnly(parseLine('[G] [D] yeah')))
+    assert.ok(!isChordOnly(parseLine('| | x4')))
+  })
+
+  it('keeps chord-only lines out of the searchable lyrics', () => {
+    let song = parseSong('| [E]  |([E])  | x4\n[G]Hello [C]there')
+    assert.equal(lyricsText(song), 'Hello there')
   })
 })
 

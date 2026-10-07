@@ -202,6 +202,19 @@ describe('songbook', () => {
     assert.match(open, /<summary[^>]*>\s*<span[^>]*>\+2<\/span>/)
   })
 
+  it('renders chord-only lines with the chords in place', async () => {
+    let response = await post(routes.songs.create.href(), {
+      title: 'Bar Chart',
+      artist: 'Tester',
+      body: '| [Am]   |([Am])  | x4\n[C]Some [G]words',
+    })
+    let html = await (await get(response.headers.get('Location') ?? '')).text()
+    // Chord, then the bar line text right after it in the same row.
+    assert.match(html, /\|\s*<\/span><span[^>]*><span[^>]*>Am<\/span>\s+\|\(<\/span>/)
+    // Lines with words still put the chords above.
+    assert.match(html, /<span[^>]*>C<\/span><span[^>]*>Some <\/span>/)
+  })
+
   it('returns 404 for unknown or unsafe ids', async () => {
     assert.equal((await get('/songs/tester/nope')).status, 404)
     assert.equal((await get('/songs/..%2F..%2Fetc/passwd')).status, 404)

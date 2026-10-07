@@ -1,7 +1,7 @@
 import type { Handle } from 'remix/component'
 import { css } from 'remix/component'
 
-import type { Block, Song } from '../data/chordpro.ts'
+import { isChordOnly, type Block, type Song } from '../data/chordpro.ts'
 import { normalizeSteps } from '../data/transpose.ts'
 import { buttonStyle, mutedStyle, rowStyle } from './styles.ts'
 
@@ -31,6 +31,21 @@ function SongBlock(handle: Handle<{ block: Block }>) {
       case 'tab':
         return <pre mix={tabStyle}>{block.text}</pre>
       case 'line': {
+        if (isChordOnly(block.segments)) {
+          // No words to sit above, so the chords stay in place between bar lines and repeats.
+          let last = block.segments.length - 1
+          return (
+            <div mix={[chordOnlyLineStyle, block.chorus ? chorusStyle : null]}>
+              {block.segments.map((segment, index) => (
+                <span key={index}>
+                  {segment.chord && <span mix={inlineChordStyle}>{segment.chord}</span>}
+                  {segment.lyric || (segment.chord && index < last ? ' ' : '')}
+                </span>
+              ))}
+            </div>
+          )
+        }
+
         let hasChords = block.segments.some((segment) => segment.chord)
         return (
           <div mix={[lineStyle, block.chorus ? chorusStyle : null]}>
@@ -171,6 +186,21 @@ const chordStyle = css({
   fontWeight: 700,
   fontSize: '0.92em',
   whiteSpace: 'pre',
+})
+
+// Monospace so bar lines in consecutive rows line up as written.
+const chordOnlyLineStyle = css({
+  minHeight: '1.5em',
+  whiteSpace: 'pre',
+  overflowX: 'auto',
+  fontFamily: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
+  fontSize: '0.92em',
+  color: 'var(--muted)',
+})
+
+const inlineChordStyle = css({
+  color: 'var(--chord)',
+  fontWeight: 700,
 })
 
 const lyricStyle = css({

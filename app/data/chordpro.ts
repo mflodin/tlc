@@ -124,9 +124,25 @@ export function parseSong(text: string): Song {
   return song
 }
 
+/**
+ * True for lines with chords but no words, like "| [E]  |([E])  | x4" or "[Am] [G] [F]".
+ * Bar lines, parentheses, dashes and repeat marks ("x4", "2x") don't count as words.
+ */
+export function isChordOnly(segments: Segment[]): boolean {
+  if (!segments.some((segment) => segment.chord)) return false
+  let text = segments
+    .map((segment) => segment.lyric)
+    .join(' ')
+    .replace(/\b(?:x\s?\d+|\d+\s?x)\b/gi, '')
+  return !/\p{L}/u.test(text)
+}
+
 export function lyricsText(song: Song): string {
   return song.blocks
-    .filter((block) => block.type === 'line')
+    .filter(
+      (block): block is Extract<Block, { type: 'line' }> =>
+        block.type === 'line' && !isChordOnly(block.segments),
+    )
     .map((block) =>
       block.segments
         .map((segment) => segment.lyric)
