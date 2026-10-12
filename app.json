@@ -1,0 +1,16 @@
+{
+  "healthchecks": {
+    "web": [
+      {
+        "type": "startup",
+        "name": "web healthz",
+        "description": "Checks that the app serves requests and can reach its database",
+        "path": "/healthz",
+        "content": "ok",
+        "attempts": 5,
+        "wait": 3,
+        "timeout": 5
+      }
+    ]
+  }
+}

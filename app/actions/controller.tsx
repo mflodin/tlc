@@ -1,4 +1,5 @@
 import { completeAuth } from 'remix/auth'
+import { sql } from 'remix/data-table'
 import { redirect } from 'remix/response/redirect'
 import { createController } from 'remix/router'
 
@@ -28,6 +29,19 @@ export default createController(routes, {
   actions: {
     async assets(context) {
       return (await assets.fetch(context.request)) ?? new Response('Not Found', { status: 404 })
+    },
+
+    // Used by Dokku's deploy checks (app.json): the new container only gets traffic once this
+    // answers "ok", which needs a working database.
+    async health(context) {
+      let headers = { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' }
+      try {
+        await context.db.exec(sql`select 1`)
+        return new Response('ok', { headers })
+      } catch (error) {
+        console.error('Health check failed:', error)
+        return new Response('database unavailable', { status: 503, headers })
+      }
     },
 
     async home(context) {

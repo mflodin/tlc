@@ -38,6 +38,18 @@ describe('anonymous visitors', () => {
     assert.equal(response.status, 401)
   })
 
+  it('can reach the health check, which reports database trouble', async () => {
+    let response = await app.client().get(routes.health.href())
+    assert.equal(response.status, 200)
+    assert.equal(await response.text(), 'ok')
+    assert.equal(response.headers.get('Cache-Control'), 'no-store')
+
+    let broken = await createTestApp()
+    await broken.db.close()
+    let failing = await broken.client().get(routes.health.href())
+    assert.equal(failing.status, 503)
+  })
+
   it('can load the login page and assets', async () => {
     assert.equal((await app.client().get(routes.login.href())).status, 200)
     assert.equal((await app.client().get('/assets/app/actions/public/entry.ts')).status, 200)

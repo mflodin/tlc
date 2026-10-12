@@ -55,8 +55,11 @@ export function loadAuth(db: Database) {
 }
 
 // Pages anyone may load. Static files in public/ are served before this middleware runs.
+// The health check is public so Dokku can call it; it only says "ok" or not.
 function isPublic(path: string): boolean {
-  return path === routes.login.href() || path.startsWith('/assets/')
+  return (
+    path === routes.login.href() || path === routes.health.href() || path.startsWith('/assets/')
+  )
 }
 
 // Logged-in users who aren't editors may still post to these.
